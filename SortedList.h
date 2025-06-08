@@ -129,9 +129,22 @@ namespace mtm {
 
     template<typename T>
     SortedList<T>::SortedList(const SortedList &other) {
-        
+        for (const T& data : other) {
+            
+        }
     }
 
+    // methods
+
+    template <typename T>
+    typename SortedList<T>::ConstIterator SortedList<T>::begin() const {
+        return ConstIterator(this, m_head);
+    }
+
+    template <typename T>
+    typename SortedList<T>::ConstIterator SortedList<T>::end() const {
+        return ConstIterator(this, nullptr);
+    }
 
     // ---------------------------------- Node ---------------------------------- //
 

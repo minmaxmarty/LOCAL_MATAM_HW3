@@ -14,7 +14,9 @@ namespace mtm {
 
         Node* m_head;
         Node* m_tail;
-        int m_size;
+        unsigned int m_size;
+
+        void clear();
 
     public:
 
@@ -40,7 +42,7 @@ namespace mtm {
 
         void insert(const T& newData);
 
-        void remove(const ConstIterator& It);
+        void remove(const ConstIterator& givenIt);
 
         unsigned int length() const;
 
@@ -85,8 +87,7 @@ namespace mtm {
 
         // constructor
         explicit Node(const T& data, Node* next = nullptr, Node* prev = nullptr);
-        Node(const Node& other);
-        Node& operator=(const Node& other);
+
     };
 
     template <class T>
@@ -150,12 +151,7 @@ namespace mtm {
 
     template<typename T>
     SortedList<T>::~SortedList() {
-        ConstIterator It = begin();
-        while (It != end()) {
-            Node* toDelete = It.m_currentNode;
-            ++It;
-            delete toDelete;
-        }
+        clear();
     }
 
     template <typename T>
@@ -164,20 +160,16 @@ namespace mtm {
             return *this;
         }
 
-        m_size = other.m_size;
+        Node* newHead = nullptr;
+        Node* newTail = nullptr;
+        unsigned int newSize = other.m_size;
 
-        ConstIterator It = begin();
-        while (It != end()) {
-            Node* toDelete = It.m_currentNode;
-            ++It;
-            delete toDelete;
-        }
-
+        // TODO: make a helper for this
         Node* prev = nullptr;
-        for (It = other.begin(); It != other.end(); ++It) {
+        for (ConstIterator It = other.begin(); It != other.end(); ++It) {
             Node* newNode = new Node(*It, nullptr, nullptr);
-            if (m_head == nullptr) {
-                m_head = newNode;
+            if (newHead == nullptr) {
+                newHead = newNode;
             }
             else {
                 prev->m_next = newNode;
@@ -185,7 +177,14 @@ namespace mtm {
             }
             prev = newNode;
         }
-        m_tail = prev;
+        newTail = prev;
+        // helper ends here
+
+        clear();
+
+        m_head = newHead;
+        m_tail = newTail;
+        m_size = newSize;
 
         return *this;
     }
@@ -221,6 +220,32 @@ namespace mtm {
         m_size++;
     }
 
+    template<typename T>
+    void SortedList<T>::remove(const ConstIterator &givenIt) {
+        Node* victim = givenIt.m_currentNode;
+        Node* victimNext = givenIt.m_currentNode->m_next;
+        Node* victimPrev = givenIt.m_currentNode->m_prev;
+
+        victim->m_next = nullptr;
+        victim->m_prev = nullptr;
+        delete victim;
+
+        if (victimNext && victimPrev) {
+            victimPrev->m_next = victimNext;
+            victimNext->m_prev = victimPrev;
+        }
+        else if (!victimNext && !victimPrev) {
+            clear();
+        }
+
+        Node*& toLink = (victimNext) ? victimNext->m_prev : victimPrev->m_next;
+        toLink = nullptr;
+    }
+
+    template<typename T>
+    unsigned int SortedList<T>::length() const {
+        return m_size;
+    }
 
     // methods for ConstIterator inside sortedList
 
@@ -238,12 +263,6 @@ namespace mtm {
 
     template <typename T>
     SortedList<T>::Node::Node(const T& data, Node* next, Node* prev) : m_data(data), m_next(next), m_prev(prev) {}
-
-    template <typename T>
-    SortedList<T>::Node::Node(const Node& other) = default;
-
-    template<typename T>
-    typename SortedList<T>::Node & SortedList<T>::Node::operator=(const Node &other) = default;
 
     // -------------------------------- Iterator -------------------------------- //
 
@@ -286,6 +305,24 @@ namespace mtm {
         return m_currentNode != other.m_currentNode;
     }
 
+    // ---------------------------------- Helper ---------------------------------- //
+
+    template<typename T>
+    void SortedList<T>::clear() {
+        if (m_head == nullptr) {
+            return;
+        }
+
+        Node* cur = m_head;
+        while (cur) {
+            Node* toDelete = cur;
+            cur = cur->m_next;
+            delete toDelete;
+        }
+
+        m_head = nullptr;
+        m_tail = nullptr;
+    }
 
 
 

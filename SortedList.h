@@ -8,10 +8,10 @@ namespace mtm {
 
     template <typename T>
     class SortedList {
-    private:
-        class m_node;
-        m_node* m_head;
-        m_node* m_tail;
+        class Node;
+
+        Node* m_head;
+        Node* m_tail;
         int m_size;
 
     public:
@@ -74,26 +74,26 @@ namespace mtm {
     };
 
     template<typename T>
-    class SortedList<T>::m_node {
-    private:
-        friend SortedList<T>;
+    class SortedList<T>::Node {
+        friend SortedList;
 
         T m_data;
-        m_node* m_next = nullptr;
-        m_node* m_prev = nullptr;
+        Node* m_next;
+        Node* m_prev;
+
+        // constructor
+        explicit Node(const T& data, Node* next = nullptr, Node* prev = nullptr);
     };
 
     template <class T>
     class SortedList<T>::ConstIterator {
-
-    private:
         friend SortedList<T>;
 
         SortedList* m_SortedList;
-        const m_node* m_currentNode;
+        const Node* m_currentNode;
 
         // private constructors
-        ConstIterator(SortedList* sortedList, const m_node* node);
+        ConstIterator(SortedList* sortedList, const Node* node);
         ConstIterator(const ConstIterator& other);
         ConstIterator& operator=(const ConstIterator& other);
         ~ConstIterator();
@@ -122,16 +122,29 @@ namespace mtm {
      */
     };
 
+    // ------------------------------- SortedList ------------------------------- //
+
+    template <typename T>
+    SortedList<T>::SortedList() : m_head(nullptr), m_tail(nullptr), m_size(0) {}
+
+    template<typename T>
+    SortedList<T>::SortedList(const SortedList &other) {
+        
+    }
 
 
+    // ---------------------------------- Node ---------------------------------- //
+
+    template <typename T>
+    SortedList<T>::Node::Node(const T& data, Node* next, Node* prev) : m_data(data), m_next(next), m_prev(prev) {}
 
 
-    // ---------------- Iterator ---------------- //
+    // -------------------------------- Iterator -------------------------------- //
 
     // constructors
 
     template <typename T>
-    SortedList<T>::ConstIterator::ConstIterator(SortedList *sortedList, const m_node *node) : m_SortedList(sortedList),
+    SortedList<T>::ConstIterator::ConstIterator(SortedList *sortedList, const Node *node) : m_SortedList(sortedList),
         m_currentNode(node) {}
 
     template <typename T>

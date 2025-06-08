@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <random>
 #include <stdexcept>
 
 namespace mtm {
@@ -11,8 +12,11 @@ namespace mtm {
         class m_node;
         m_node* m_head;
         m_node* m_tail;
+        int m_size;
 
     public:
+
+        // constructors
 
         SortedList();
 
@@ -22,13 +26,25 @@ namespace mtm {
 
         SortedList& operator=(const SortedList& other);
 
+        // iterator
+
         class ConstIterator;
 
         ConstIterator begin() const;
 
         ConstIterator end() const;
 
+        // methods
 
+        void insert(T newData);
+
+        void remove(const ConstIterator& It);
+
+        unsigned int length() const;
+
+        SortedList filter(bool (*func)(T)) const;
+
+        SortedList apply(T (*func)(T)) const;
 
 
         /**
@@ -60,6 +76,8 @@ namespace mtm {
     template<typename T>
     class SortedList<T>::m_node {
     private:
+        friend SortedList<T>;
+
         T m_data;
         m_node* m_next = nullptr;
         m_node* m_prev = nullptr;
@@ -69,18 +87,22 @@ namespace mtm {
     class SortedList<T>::ConstIterator {
 
     private:
+        friend SortedList<T>;
+
         SortedList* m_SortedList;
-        int m_index;
-        ConstIterator(SortedList* Sortedlist, const int& index) : m_SortedList(Sortedlist), m_index(index) {} // private constructor
+        const m_node* m_currentNode;
+
+        // private constructors
+        ConstIterator(SortedList* sortedList, const m_node* node);
         ConstIterator(const ConstIterator& other);
         ConstIterator& operator=(const ConstIterator& other);
         ~ConstIterator();
 
     public:
 
-        T& operator*(); // unary operator
+        const T& operator*() const; // unary operator
         ConstIterator& operator++();
-        bool operator!=(const ConstIterator& other);
+        bool operator!=(const ConstIterator& other) const;
 
     /**
      * the class should support the following public interface:
@@ -99,6 +121,51 @@ namespace mtm {
      *
      */
     };
+
+
+
+
+
+    // ---------------- Iterator ---------------- //
+
+    // constructors
+
+    template <typename T>
+    SortedList<T>::ConstIterator::ConstIterator(SortedList *sortedList, const m_node *node) : m_SortedList(sortedList),
+        m_currentNode(node) {}
+
+    template <typename T>
+    SortedList<T>::ConstIterator::ConstIterator(const ConstIterator& other) = default;
+
+    template<typename T>
+    typename SortedList<T>::ConstIterator & SortedList<T>::ConstIterator::operator=(const ConstIterator &other) = default;
+
+    template <typename T>
+    SortedList<T>::ConstIterator::~ConstIterator() = default;
+
+    // operators
+
+    template <typename T>
+    const T& SortedList<T>::ConstIterator::operator*() const {
+        if (m_currentNode == nullptr) {
+            throw std::out_of_range("out of range"); // incase we are out of range
+        }
+        return m_currentNode->m_data; // return the data inside the node that the iterator is pointing to
+    }
+
+    template <typename T>
+    typename SortedList<T>::ConstIterator& SortedList<T>::ConstIterator::operator++() {
+        if (m_currentNode == nullptr) {
+            return std::out_of_range("out of range");
+        }
+        m_currentNode = m_currentNode->m_next;
+        return *this;
+    }
+
+    template <typename T>
+    bool SortedList<T>::ConstIterator::operator!=(const ConstIterator& other) const {
+        return m_currentNode != other.m_currentNode;
+    }
 
 
 

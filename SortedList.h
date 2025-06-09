@@ -198,19 +198,19 @@ namespace mtm {
         if (m_head == nullptr) {
             m_head = m_tail = new Node(newData, nullptr, nullptr);
         }
-        else if (!(newData > m_head->m_data)) {
+        else if (newData > m_head->m_data) {
             Node* newNode = new Node(newData, m_head, nullptr);
             m_head->m_prev = newNode;
             m_head = newNode;
         }
-        else if (newData > m_tail->m_data) {
+        else if (!(newData > m_tail->m_data)) {
             Node* newNode = new Node(newData, nullptr, m_tail);
             m_tail->m_next = newNode;
             m_tail = newNode;
         }
         else {
             for (ConstIterator It = begin(); It != end(); ++It) {
-                if (newData > *It && !(newData > It.m_currentNode->m_next->m_data)) {
+                if (!(newData > *It) && newData > It.m_currentNode->m_next->m_data) {
                     Node* newNode = new Node(newData, It.m_currentNode->m_next, It.m_currentNode);
                     It.m_currentNode->m_next = newNode;
                     newNode->m_next->m_prev = newNode;
@@ -274,10 +274,10 @@ namespace mtm {
     template<typename T>
     template<typename Function>
     SortedList<T> SortedList<T>::apply(Function applyFunction) const {
-        SortedList newList = *this;
-        for (ConstIterator It = newList.begin(); It != newList.end(); ++It) {
+        SortedList newList;
+        for (ConstIterator It = begin(); It != end(); ++It) {
             Node* curNode = It.m_currentNode;
-            curNode->m_data = applyFunction(curNode->m_data);
+            newList.insert(applyFunction(curNode->m_data));
         }
 
         return newList;

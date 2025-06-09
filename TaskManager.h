@@ -23,7 +23,8 @@ private:
     Person *findPerson(const string &personName);
     Person *addPerson(const string &personName);
     SortedList<Task> createListOfAllTasks() const;
-    void printTaskList(const SortedList<Task> &listToPrint) const;
+
+    static void printTaskList(const SortedList<Task> &listToPrint);
 
 public:
     /**

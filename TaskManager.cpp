@@ -29,10 +29,12 @@ void TaskManager::bumpPriorityByType(TaskType type, int priority) {
                 if (curTask.getType() == type) {
                     const int newPriority = curTask.getPriority() + priority;
                     Task newTask(newPriority, curTask.getType(), curTask.getDescription());
+                    newTask.setId(curTask.getId());
                     return newTask;
                 }
                 return curTask;
             });
+            curPerson.setTasks(newTaskList);
         }
     }
 }
@@ -46,9 +48,7 @@ void TaskManager::printAllEmployees() const {
 void TaskManager::printTasksByType(TaskType type) const {
     const SortedList<Task> listOfAllTasks = createListOfAllTasks();
     const SortedList<Task> listToPrint = listOfAllTasks.filter([&type](const Task& curTask) -> bool {
-        const string curTypeString = taskTypeToString(curTask.getType());
-        const string typeToFindString = taskTypeToString(type);
-        if (curTypeString == typeToFindString) {
+        if (curTask.getType() == type) {
             return true;
         }
         return false;
@@ -94,7 +94,7 @@ SortedList<Task> TaskManager::createListOfAllTasks() const {
     return newListOfTasks;
 }
 
-void TaskManager::printTaskList(const SortedList<Task> &listToPrint) const {
+void TaskManager::printTaskList(const SortedList<Task> &listToPrint) {
     for (const Task& curTask : listToPrint) {
         std::cout << curTask << std::endl;
     }

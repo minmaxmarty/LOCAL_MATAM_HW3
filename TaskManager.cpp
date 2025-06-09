@@ -76,7 +76,7 @@ Person *TaskManager::addPerson(const string &personName) {
     if (m_numOfPersons >= MAX_PERSONS) {
         throw std::runtime_error("Max Number of People Reached");
     }
-    m_personArray[m_numOfPersons - 1] = Person(personName);
+    m_personArray[m_numOfPersons++] = Person(personName);
 
     return &m_personArray[m_numOfPersons - 1];
 }

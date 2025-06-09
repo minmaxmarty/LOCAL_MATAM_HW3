@@ -225,23 +225,32 @@ namespace mtm {
     template<typename T>
     void SortedList<T>::remove(const ConstIterator &givenIt) {
         Node* victim = givenIt.m_currentNode;
+        if (victim == nullptr) {
+            return;
+        }
+        if (victim == m_head) {
+            m_head = victim->m_next;
+        }
+        else if (victim == m_tail) {
+            m_tail = victim->m_prev;
+        }
         Node* victimNext = givenIt.m_currentNode->m_next;
         Node* victimPrev = givenIt.m_currentNode->m_prev;
-
-        victim->m_next = nullptr;
-        victim->m_prev = nullptr;
-        delete victim;
 
         if (victimNext && victimPrev) {
             victimPrev->m_next = victimNext;
             victimNext->m_prev = victimPrev;
         }
-        else if (!victimNext && !victimPrev) {
-            clear();
+
+        else if (!(!victimNext && !victimPrev)) {
+            Node*& toLink = (victimNext) ? victimNext->m_prev : victimPrev->m_next;
+            toLink = nullptr;
         }
 
-        Node*& toLink = (victimNext) ? victimNext->m_prev : victimPrev->m_next;
-        toLink = nullptr;
+        victim->m_next = nullptr;
+        victim->m_prev = nullptr;
+        delete victim;
+        m_size--;
     }
 
     template<typename T>
@@ -252,10 +261,10 @@ namespace mtm {
     template<typename T>
     template<typename Function>
     SortedList<T> SortedList<T>::filter(Function filterFunction) const {
-        SortedList newList = *this;
-        for (ConstIterator It = newList.begin(); It != newList.end(); ++It) {
+        SortedList newList;
+        for (ConstIterator It = begin(); It != end(); ++It) {
             if (filterFunction(*It)) {
-                newList.remove(It);
+                newList.insert(*It);
             }
         }
 

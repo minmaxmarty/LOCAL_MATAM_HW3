@@ -46,9 +46,9 @@ namespace mtm {
 
         unsigned int length() const;
 
-        SortedList filter(bool (*func)(T)) const;
+        SortedList filter(bool (*filterFunction)(T)) const;
 
-        SortedList apply(T (*func)(T)) const;
+        SortedList apply(T (*applyFunction)(T)) const;
 
 
         /**
@@ -245,6 +245,15 @@ namespace mtm {
     template<typename T>
     unsigned int SortedList<T>::length() const {
         return m_size;
+    }
+
+    template<typename T>
+    SortedList<T> SortedList<T>::filter(bool(*filterFunction)(T)) const {
+        
+    }
+
+    template<typename T>
+    SortedList<T> SortedList<T>::apply(T(*applyFunction)(T)) const {
     }
 
     // methods for ConstIterator inside sortedList

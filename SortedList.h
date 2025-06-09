@@ -44,11 +44,13 @@ namespace mtm {
 
         void remove(const ConstIterator& givenIt);
 
-        unsigned int length() const;
+        int length() const;
 
-        SortedList filter(bool (*filterFunction)(T)) const;
+        template <typename Function>
+        SortedList filter(Function filterFunction) const;
 
-        SortedList apply(T (*applyFunction)(T)) const;
+        template <typename Function>
+        SortedList apply(Function applyFunction) const;
 
 
         /**
@@ -94,16 +96,16 @@ namespace mtm {
     class SortedList<T>::ConstIterator {
         friend SortedList;
 
-        SortedList* m_SortedList;
-        const Node* m_currentNode;
+        Node* m_currentNode;
 
         // private constructors
-        ConstIterator(SortedList* sortedList, const Node* node);
-        ConstIterator(const ConstIterator& other);
-        ConstIterator& operator=(const ConstIterator& other);
-        ~ConstIterator();
+        explicit ConstIterator(Node* node);
 
     public:
+
+        ConstIterator(const ConstIterator& other) = default;
+        ConstIterator& operator=(const ConstIterator& other) = default;
+        ~ConstIterator() = default;
 
         const T& operator*() const; // unary operator
         ConstIterator& operator++();
@@ -196,7 +198,7 @@ namespace mtm {
         if (m_head == nullptr) {
             m_head = m_tail = new Node(newData, nullptr, nullptr);
         }
-        else if (newData <= m_head->m_data) {
+        else if (!(newData > m_head->m_data)) {
             Node* newNode = new Node(newData, m_head, nullptr);
             m_head->m_prev = newNode;
             m_head = newNode;
@@ -208,7 +210,7 @@ namespace mtm {
         }
         else {
             for (ConstIterator It = begin(); It != end(); ++It) {
-                if (newData > *It && newData <= It.m_currentNode->m_next->m_data) {
+                if (newData > *It && !(newData > It.m_currentNode->m_next->m_data)) {
                     Node* newNode = new Node(newData, It.m_currentNode->m_next, It.m_currentNode);
                     It.m_currentNode->m_next = newNode;
                     newNode->m_next->m_prev = newNode;
@@ -243,12 +245,13 @@ namespace mtm {
     }
 
     template<typename T>
-    unsigned int SortedList<T>::length() const {
+    int SortedList<T>::length() const {
         return m_size;
     }
 
     template<typename T>
-    SortedList<T> SortedList<T>::filter(bool(*filterFunction)(T)) const {
+    template<typename Function>
+    SortedList<T> SortedList<T>::filter(Function filterFunction) const {
         SortedList newList = *this;
         for (ConstIterator It = newList.begin(); It != newList.end(); ++It) {
             if (filterFunction(*It)) {
@@ -260,7 +263,8 @@ namespace mtm {
     }
 
     template<typename T>
-    SortedList<T> SortedList<T>::apply(T(*applyFunction)(T)) const {
+    template<typename Function>
+    SortedList<T> SortedList<T>::apply(Function applyFunction) const {
         SortedList newList = *this;
         for (ConstIterator It = newList.begin(); It != newList.end(); ++It) {
             Node* curNode = It.m_currentNode;
@@ -274,12 +278,12 @@ namespace mtm {
 
     template <typename T>
     typename SortedList<T>::ConstIterator SortedList<T>::begin() const {
-        return ConstIterator(this, m_head);
+        return ConstIterator(m_head);
     }
 
     template <typename T>
     typename SortedList<T>::ConstIterator SortedList<T>::end() const {
-        return ConstIterator(this, nullptr);
+        return ConstIterator(nullptr);
     }
 
     // ---------------------------------- Node ---------------------------------- //
@@ -292,17 +296,7 @@ namespace mtm {
     // constructors
 
     template <typename T>
-    SortedList<T>::ConstIterator::ConstIterator(SortedList *sortedList, const Node *node) : m_SortedList(sortedList),
-        m_currentNode(node) {}
-
-    template <typename T>
-    SortedList<T>::ConstIterator::ConstIterator(const ConstIterator& other) = default;
-
-    template<typename T>
-    typename SortedList<T>::ConstIterator & SortedList<T>::ConstIterator::operator=(const ConstIterator &other) = default;
-
-    template <typename T>
-    SortedList<T>::ConstIterator::~ConstIterator() = default;
+    SortedList<T>::ConstIterator::ConstIterator(Node *node) : m_currentNode(node) {}
 
     // operators
 
@@ -317,7 +311,7 @@ namespace mtm {
     template <typename T>
     typename SortedList<T>::ConstIterator& SortedList<T>::ConstIterator::operator++() {
         if (m_currentNode == nullptr) {
-            return std::out_of_range("out of range");
+            throw std::out_of_range("out of range");
         }
         m_currentNode = m_currentNode->m_next;
         return *this;

@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "Person.h"
+#include "SortedList.h"
 #include "Task.h"
 
 /**
@@ -12,8 +14,16 @@ private:
      * @brief Maximum number of persons the TaskManager can handle.
      */
     static const int MAX_PERSONS = 10;
+    Person m_personArray[MAX_PERSONS];
+    unsigned int m_numOfPersons = 0;
+    int m_newestTaskId = 0;
 
     // Note - Additional private fields and methods can be added if needed.
+
+    Person *findPerson(const string &personName);
+    Person *addPerson(const string &personName);
+    SortedList<Task> createListOfAllTasks() const;
+    void printTaskList(const SortedList<Task> &listToPrint) const;
 
 public:
     /**
@@ -55,7 +65,6 @@ public:
      * @param priority The amount by which the priority will be increased.
      */
     void bumpPriorityByType(TaskType type, int priority);
-
     /**
      * @brief Prints all employees and their tasks.
      */

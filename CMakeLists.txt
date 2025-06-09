@@ -4,6 +4,9 @@ project(Matam_Hw3)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(Matam_Hw3 
-    main.cpp
-    SortedList.h
+        main.cpp
+        SortedList.h
+        TaskManager.cpp
+        Task.cpp
+        Person.cpp
 )
